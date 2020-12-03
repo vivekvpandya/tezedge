@@ -5,7 +5,10 @@ extern crate test;
 
 use std::{env, thread};
 
-use ocaml_interop::{FromOCaml, OCaml, OCamlBytes, OCamlList, OCamlRuntime, ToOCaml, ocaml_alloc, ocaml_call, ocaml_frame, to_ocaml};
+use ocaml_interop::{
+    ocaml_alloc, ocaml_call, ocaml_frame, to_ocaml, FromOCaml, OCaml, OCamlBytes, OCamlList,
+    OCamlRuntime, ToOCaml,
+};
 use serial_test::serial;
 
 use crypto::hash::{chain_id_from_block_hash, BlockHash, ChainId};
@@ -355,7 +358,8 @@ fn call_to_send_context_events(
     data: RustBytes,
 ) {
     runtime::execute(move |rt: &mut OCamlRuntime| {
-        ocaml_frame!(rt,
+        ocaml_frame!(
+            rt,
             (
                 context_hash_root,
                 block_header_hash_root,

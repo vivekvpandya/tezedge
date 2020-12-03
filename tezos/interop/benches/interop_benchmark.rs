@@ -9,7 +9,7 @@ use tezos_api::ffi::{
 };
 
 use crypto::hash::HashType;
-use ocaml_interop::{OCamlRuntime, ToOCaml, ToRust, ocaml_call, to_ocaml};
+use ocaml_interop::{ocaml_call, to_ocaml, OCamlRuntime, ToOCaml, ToRust};
 use tezos_interop::ffi;
 use tezos_interop::runtime;
 use tezos_interop::runtime::OcamlError;

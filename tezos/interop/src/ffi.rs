@@ -3,7 +3,9 @@
 
 use std::sync::Once;
 
-use ocaml_interop::{FromOCaml, OCaml, OCamlFn1, OCamlRuntime, ToOCaml, ToRust, ocaml_call, ocaml_frame, to_ocaml};
+use ocaml_interop::{
+    ocaml_call, ocaml_frame, to_ocaml, FromOCaml, OCaml, OCamlFn1, OCamlRuntime, ToOCaml, ToRust,
+};
 
 use tezos_api::ffi::*;
 use tezos_api::ocaml_conv::FfiPath;
@@ -109,7 +111,8 @@ pub fn init_protocol_context(
     patch_context: Option<PatchContext>,
 ) -> Result<Result<InitProtocolContextResult, TezosStorageInitError>, OcamlError> {
     runtime::execute(move |rt: &mut OCamlRuntime| {
-        ocaml_frame!(rt,
+        ocaml_frame!(
+            rt,
             (
                 genesis_tuple,
                 protocol_overrides_tuple,

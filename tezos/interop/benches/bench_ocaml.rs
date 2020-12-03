@@ -6,7 +6,7 @@ extern crate test;
 
 use test::Bencher;
 
-use ocaml_interop::{ocaml, ocaml_alloc, ocaml_call, FromOCaml, ToOCaml, OCamlRuntime};
+use ocaml_interop::{ocaml, ocaml_alloc, ocaml_call, FromOCaml, OCamlRuntime, ToOCaml};
 
 use tezos_interop::runtime;
 use tezos_interop::runtime::OcamlResult;

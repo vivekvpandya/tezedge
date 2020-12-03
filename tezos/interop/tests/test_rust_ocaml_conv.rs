@@ -3,7 +3,7 @@
 #![feature(test)]
 extern crate test;
 
-use ocaml_interop::{OCaml, OCamlRuntime, ToOCaml, ToRust, ocaml_call, ocaml_frame, to_ocaml};
+use ocaml_interop::{ocaml_call, ocaml_frame, to_ocaml, OCaml, OCamlRuntime, ToOCaml, ToRust};
 use serial_test::serial;
 
 use tezos_api::{
@@ -167,7 +167,8 @@ fn test_block_header_conv() {
     let block_header = BlockHeader::from_bytes(hex::decode(HEADER).unwrap()).unwrap();
 
     let result: bool = runtime::execute(move |rt: &mut OCamlRuntime| {
-        ocaml_frame!(rt,
+        ocaml_frame!(
+            rt,
             (
                 shell_params1_root,
                 predecessor_root,
@@ -234,7 +235,8 @@ fn test_apply_block_request_conv() {
             .map(|ops| ops.iter().map(FfiOperation::from).collect())
             .collect();
 
-        ocaml_frame!(rt,
+        ocaml_frame!(
+            rt,
             (
                 apply_block_request_root,
                 chain_id_root,
@@ -372,7 +374,8 @@ fn test_validate_rpc_request_conv() {
         accept: None,
     };
     let result: bool = runtime::execute(move |rt: &mut OCamlRuntime| {
-        ocaml_frame!(rt,
+        ocaml_frame!(
+            rt,
             (
                 body_root,
                 context_path_root,
@@ -423,7 +426,8 @@ fn test_validate_protocol_rpc_request_conv() {
         request: rpc_request,
     };
     let result: bool = runtime::execute(move |rt: &mut OCamlRuntime| {
-        ocaml_frame!(rt,
+        ocaml_frame!(
+            rt,
             (
                 block_header_root,
                 chain_arg_root,
