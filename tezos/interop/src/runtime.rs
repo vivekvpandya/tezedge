@@ -14,6 +14,7 @@ use std::thread;
 use futures::executor::LocalPool;
 
 use lazy_static::lazy_static;
+use ocaml_interop::OCamlRuntime;
 
 use crate::ffi;
 
@@ -80,7 +81,7 @@ where
 /// for executing ocaml function(s) and passing the result back to rust.
 struct OcamlTask {
     /// this operation will be executed by `OcamlThreadExecutor` in the thread that is allowed to access the ocaml runtime
-    op: Box<dyn FnOnce() + Send + 'static>,
+    op: Box<dyn FnOnce(&mut OCamlRuntime) + Send + 'static>,
     /// shared state between `OcamlTask` and `OcamlResult`
     state: Arc<Mutex<SharedState>>,
 }
@@ -99,13 +100,13 @@ impl OcamlTask {
         shared_state: Arc<Mutex<SharedState>>,
     ) -> OcamlTask
     where
-        F: FnOnce() -> T + Send + 'static,
+        F: FnOnce(&mut OCamlRuntime) -> T + Send + 'static,
         T: Send + 'static,
     {
         OcamlTask {
-            op: Box::new(move || {
+            op: Box::new(move |rt: &mut OCamlRuntime| {
                 let mut result = f_result_holder.lock().unwrap();
-                match std::panic::catch_unwind(AssertUnwindSafe(|| f())) {
+                match std::panic::catch_unwind(AssertUnwindSafe(|| f(rt))) {
                     Ok(f_result) => *result = Some(Ok(f_result)),
                     Err(_) => *result = Some(Err(OcamlError)),
                 }
@@ -128,19 +129,21 @@ struct OcamlThreadExecutor {
     /// Receiver is used to receive tasks which will be then executed
     /// in the ocaml runtime.
     ready_tasks: Receiver<OcamlTask>,
+    ocaml_runtime: OCamlRuntime,
 }
 
 impl OcamlThreadExecutor {
     /// Runs scheduled ocaml task to it's completion.
-    fn run(&self) {
+    fn run(mut self) -> OCamlRuntime {
         while let Ok(task) = self.ready_tasks.recv() {
             // execute future from task
-            (task.op)();
+            (task.op)(&mut self.ocaml_runtime);
             // notify waker that OcamlResult (it implements Future) is ready to be polled
             if let Some(waker) = task.state.lock().unwrap().waker.take() {
                 waker.wake()
             }
         }
+        self.ocaml_runtime
     }
 }
 
@@ -170,12 +173,15 @@ fn initialize_environment() -> OcamlEnvironment {
     let spawner = OcamlTaskSpawner {
         spawned_tasks: Arc::new(Mutex::new(task_tx)),
     };
-    let executor = OcamlThreadExecutor {
-        ready_tasks: task_rx,
-    };
+
     thread::spawn(move || {
-        ffi::setup();
-        executor.run()
+        let ocaml_runtime = ffi::setup();
+        let executor = OcamlThreadExecutor {
+            ready_tasks: task_rx,
+            ocaml_runtime,
+        };
+        let ocaml_runtime = executor.run();
+        ocaml_runtime.shutdown();
     });
 
     OcamlEnvironment { spawner }
@@ -188,7 +194,7 @@ fn initialize_environment() -> OcamlEnvironment {
 /// * `f` - the function will be executed in ocaml thread context
 pub fn spawn<F, T>(f: F) -> OcamlResult<T>
 where
-    F: FnOnce() -> T + 'static + Send,
+    F: FnOnce(&mut OCamlRuntime) -> T + 'static + Send,
     T: 'static + Send,
 {
     let result = Arc::new(Mutex::new(None));
@@ -210,7 +216,7 @@ where
 /// * `f` - the function will be executed in ocaml thread context
 pub fn execute<F, T>(f: F) -> Result<T, OcamlError>
 where
-    F: FnOnce() -> T + 'static + Send,
+    F: FnOnce(&mut OCamlRuntime) -> T + 'static + Send,
     T: 'static + Send,
 {
     LocalPool::new().run_until(spawn(f))

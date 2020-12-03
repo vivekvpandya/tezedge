@@ -15,19 +15,17 @@ pub mod ffi;
 /// ```rust, no_run
 /// use tezos_interop::runtime::OcamlResult;
 /// use tezos_interop::runtime;
-/// use ocaml_interop::{ocaml, ocaml_frame, ocaml_alloc, ocaml_call, ToOCaml, FromOCaml};
+/// use ocaml_interop::{ocaml, ocaml_frame, ocaml_alloc, ocaml_call, ToOCaml, FromOCaml, OCamlRuntime};
 ///
 /// ocaml! {
 ///     pub fn echo(value: String) -> String;
 /// }
 ///
 /// fn ocaml_fn_echo(arg: String) -> OcamlResult<String> {
-///     runtime::spawn(move || {
-///         ocaml_frame!(gc, {
-///             let value = ocaml_alloc!(arg.to_ocaml(gc));
-///             let ocaml_result = ocaml_call!(echo(gc, value));
-///             String::from_ocaml(ocaml_result.unwrap())
-///         })
+///     runtime::spawn(move |rt: &mut OCamlRuntime| {
+///         let value = ocaml_alloc!(arg.to_ocaml(rt));
+///         let ocaml_result = ocaml_call!(echo(rt, value));
+///         String::from_ocaml(&ocaml_result.unwrap())
 ///     })
 /// }
 ///

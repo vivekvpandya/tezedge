@@ -6,7 +6,7 @@ extern crate test;
 
 use test::Bencher;
 
-use ocaml_interop::{ocaml, ocaml_alloc, ocaml_call, ocaml_frame, FromOCaml, ToOCaml};
+use ocaml_interop::{ocaml, ocaml_alloc, ocaml_call, FromOCaml, ToOCaml, OCamlRuntime};
 
 use tezos_interop::runtime;
 use tezos_interop::runtime::OcamlResult;
@@ -16,12 +16,10 @@ ocaml! {
 }
 
 fn ocaml_fn_echo(arg: String) -> OcamlResult<String> {
-    runtime::spawn(move || {
-        ocaml_frame!(gc, {
-            let value = ocaml_alloc!(arg.to_ocaml(gc));
-            let ocaml_result = ocaml_call!(echo(gc, value));
-            String::from_ocaml(ocaml_result.unwrap())
-        })
+    runtime::spawn(move |rt: &mut OCamlRuntime| {
+        let value = ocaml_alloc!(arg.to_ocaml(rt));
+        let ocaml_result = ocaml_call!(echo(rt, value));
+        String::from_ocaml(&ocaml_result.unwrap())
     })
 }
 

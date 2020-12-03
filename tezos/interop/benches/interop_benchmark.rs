@@ -9,7 +9,7 @@ use tezos_api::ffi::{
 };
 
 use crypto::hash::HashType;
-use ocaml_interop::{ocaml_call, ocaml_frame, to_ocaml, ToOCaml, ToRust};
+use ocaml_interop::{OCamlRuntime, ToOCaml, ToRust, ocaml_call, to_ocaml};
 use tezos_interop::ffi;
 use tezos_interop::runtime;
 use tezos_interop::runtime::OcamlError;
@@ -76,17 +76,15 @@ fn sample_operations_for_request_decoded() -> Vec<Vec<RustBytes>> {
 }
 
 fn apply_block_request_decoded_roundtrip(request: ApplyBlockRequest) -> Result<(), OcamlError> {
-    runtime::execute(move || {
-        ocaml_frame!(gc, {
-            let request = to_ocaml!(gc, request);
-            let result = ocaml_call!(tezos_ffi::apply_block_request_decoded_roundtrip(
-                gc, request
-            ))
-            .unwrap();
-            let _response: ApplyBlockResponse = result.to_rust();
+    runtime::execute(move |rt: &mut OCamlRuntime| {
+        let request = to_ocaml!(rt, request);
+        let result = ocaml_call!(tezos_ffi::apply_block_request_decoded_roundtrip(
+            rt, request
+        ))
+        .unwrap();
+        let _response: ApplyBlockResponse = result.to_rust();
 
-            ()
-        })
+        ()
     })
 }
 
@@ -114,15 +112,13 @@ fn criterion_benchmark(c: &mut Criterion) {
         }),
     };
 
-    let _ignored = runtime::execute(move || {
-        ocaml_frame!(gc, {
-            let ocaml_response = to_ocaml!(gc, response_with_some_forking_data);
-            ocaml_call!(tezos_ffi::setup_benchmark_apply_block_response(
-                gc,
-                ocaml_response
-            ))
-            .unwrap();
-        })
+    let _ignored = runtime::execute(move |rt: &mut OCamlRuntime| {
+        let ocaml_response = to_ocaml!(rt, response_with_some_forking_data);
+        ocaml_call!(tezos_ffi::setup_benchmark_apply_block_response(
+            rt,
+            ocaml_response
+        ))
+        .unwrap();
     });
 
     c.bench_function("apply_block_request_decoded_roundtrip", |b| {
