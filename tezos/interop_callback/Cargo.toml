@@ -8,6 +8,6 @@ edition = "2018"
 crate-type = ["dylib", "rlib"]
 
 [dependencies]
-ocaml-interop = { git = "https://github.com/simplestaking/ocaml-interop.git", branch = "runtime-handle", features = ["docs-rs"] }
+ocaml-interop = { git = "https://github.com/simplestaking/ocaml-interop.git", features = ["docs-rs"] }
 # local dependencies
 tezos_context = { path = "../context" }

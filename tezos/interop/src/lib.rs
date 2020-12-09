@@ -25,7 +25,7 @@ pub mod ffi;
 ///     runtime::spawn(move |rt: &mut OCamlRuntime| {
 ///         let value = ocaml_alloc!(arg.to_ocaml(rt));
 ///         let ocaml_result = ocaml_call!(echo(rt, value));
-///         String::from_ocaml(&ocaml_result.unwrap())
+///         String::from_ocaml(ocaml_result.unwrap())
 ///     })
 /// }
 ///

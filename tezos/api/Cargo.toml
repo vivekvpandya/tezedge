@@ -10,7 +10,7 @@ enum-iterator = "0.6"
 failure = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
 lazy_static = "1.4"
-ocaml-interop = { git = "https://github.com/simplestaking/ocaml-interop.git", branch = "runtime-handle", features = ["docs-rs"] }
+ocaml-interop = { git = "https://github.com/simplestaking/ocaml-interop.git", features = ["docs-rs"] }
 serde = { version = "1.0", features = ["derive"] }
 # local dependencies
 crypto = { path = "../../crypto" }

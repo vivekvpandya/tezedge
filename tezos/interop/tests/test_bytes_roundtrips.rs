@@ -82,7 +82,7 @@ fn test_chain_id_roundtrip(iteration: i32) -> Result<(), failure::Error> {
         // sent bytes to ocaml
         let chain_id: OCaml<OCamlBytes> = ocaml_alloc!(chain_id.to_ocaml(rt));
         let result = ocaml_call!(tezos_ffi::chain_id_roundtrip(rt, chain_id));
-        let result = String::from_ocaml(&result.unwrap());
+        let result = String::from_ocaml(result.unwrap());
         assert_eq_hash(CHAIN_ID, result);
         ()
     });
@@ -109,7 +109,7 @@ fn test_block_header_roundtrip(iteration: i32) -> Result<(), failure::Error> {
         // sent bytes to ocaml
         let header: OCaml<OCamlBytes> = ocaml_alloc!(header.to_ocaml(rt));
         let result = ocaml_call!(tezos_ffi::block_header_roundtrip(rt, header));
-        let result = <(String, String)>::from_ocaml(&result.unwrap());
+        let result = <(String, String)>::from_ocaml(result.unwrap());
         assert_eq_hash_and_header(HEADER_HASH, HEADER, result);
         ()
     });
@@ -138,7 +138,7 @@ fn test_block_header_struct_roundtrip(iteration: i32) -> Result<(), failure::Err
         // sent header to ocaml
         let header = to_ocaml!(rt, FfiBlockHeader::from(&header));
         let result = ocaml_call!(tezos_ffi::block_header_struct_roundtrip(rt, header));
-        let (block_hash, chain_id) = <(String, String)>::from_ocaml(&result.unwrap());
+        let (block_hash, chain_id) = <(String, String)>::from_ocaml(result.unwrap());
 
         let block_hash: BlockHash = block_hash.as_bytes().to_vec();
         let chain_id: ChainId = chain_id.as_bytes().to_vec();
@@ -178,7 +178,7 @@ fn test_block_header_with_hash_roundtrip(iteration: i32) -> Result<(), failure::
                 rt.get(&header_hash),
                 header
             ));
-            let result = <(String, String)>::from_ocaml(&result.unwrap());
+            let result = <(String, String)>::from_ocaml(result.unwrap());
             assert_eq_hash_and_header(HEADER_HASH, HEADER, result);
             ()
         })
@@ -204,7 +204,7 @@ fn test_operation_roundtrip(iteration: i32) -> Result<(), failure::Error> {
         let result = ocaml_call!(tezos_ffi::operation_roundtrip(rt, operation));
 
         // check
-        let result = String::from_ocaml(&result.unwrap());
+        let result = String::from_ocaml(result.unwrap());
         assert_eq!(OPERATION, hex::encode(result).as_str());
 
         ()
@@ -261,7 +261,7 @@ fn test_operations_list_list_roundtrip(
         ));
 
         // check
-        let result = <Vec<Vec<String>>>::from_ocaml(&result.unwrap());
+        let result = <Vec<Vec<String>>>::from_ocaml(result.unwrap());
         assert_eq_operations(result, expected_list_count, expected_list_0_count);
 
         ()

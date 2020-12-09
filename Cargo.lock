@@ -1965,7 +1965,7 @@ checksum = "8d3b63360ec3cb337817c2dbd47ab4a0f170d285d8e5a2064600f3def1402397"
 [[package]]
 name = "ocaml-interop"
 version = "0.4.4"
-source = "git+https://github.com/simplestaking/ocaml-interop.git?branch=runtime-handle#5e990dae1d1e99a867a3c9a86ba31ee4a8a6b481"
+source = "git+https://github.com/simplestaking/ocaml-interop.git#b9e4a1ff6c8893af4f1c3c1ba61052cea224bb0f"
 dependencies = [
  "ocaml-sys",
 ]

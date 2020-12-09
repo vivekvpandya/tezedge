@@ -20,7 +20,7 @@ use tezos_messages::p2p::encoding::operations_for_blocks::{Path, PathLeft, PathR
 macro_rules! from_ocaml_hash {
     ($ocaml_name:ident, $rust_name:ident) => {
         unsafe impl FromOCaml<$ocaml_name> for $rust_name {
-            fn from_ocaml(v: &OCaml<$ocaml_name>) -> Self {
+            fn from_ocaml(v: OCaml<$ocaml_name>) -> Self {
                 unsafe { v.field::<OCamlBytes>(0).to_rust() }
             }
         }
