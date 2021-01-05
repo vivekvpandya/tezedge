@@ -5,16 +5,17 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::process::Command;
+use std::convert::TryFrom;
 
 use failure::Fail;
 use regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use lazy_static::lazy_static;
 
 pub type MemoryStatsResult<T> = std::result::Result<T, MemoryStatsError>;
 
-#[derive(Serialize, PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug, Default)]
 pub struct LinuxData {
     page_size: usize, // unit of memory assignment/addressing used by the Linux kernel
     size: String,     // total program size
@@ -33,6 +34,12 @@ pub struct DarwinOsData {
     resident: String, // resident set size
 }
 
+#[derive(Serialize, Default)]
+pub struct ProcessMemoryStats {
+    virtual_mem: usize,
+    resident_mem: usize,
+}
+
 #[derive(Serialize, PartialEq, Clone, Debug)]
 #[serde(untagged)]
 pub enum MemoryData {
@@ -49,6 +56,33 @@ impl From<LinuxData> for MemoryData {
 impl From<DarwinOsData> for MemoryData {
     fn from(data: DarwinOsData) -> Self {
         MemoryData::DarwinOs(data)
+    }
+}
+
+// TODO: implement for DarwinOsData, too
+impl TryFrom<LinuxData> for ProcessMemoryStats {
+    type Error = failure::Error;
+
+    fn try_from(data: LinuxData) -> Result<Self, Self::Error> {
+        let LinuxData {
+            size,
+            resident,
+            page_size,
+            ..
+        } = data;
+
+        let size = size.parse::<usize>()?;
+        let resident = resident.parse::<usize>()?;
+
+        // the size and page size are in Bytes, so we conwert it to Mega Bytes in a readable 
+        // fashion (divide by 1024 to get Kilo Bytes and another to get Mega Bytes)
+        let virtual_mem = size * page_size / 1024 / 1024;
+        let resident_mem = resident * page_size / 1024 / 1024;
+
+        Ok(ProcessMemoryStats {
+            virtual_mem,
+            resident_mem,
+        })
     }
 }
 
