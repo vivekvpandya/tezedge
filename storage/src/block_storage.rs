@@ -11,7 +11,7 @@ use crypto::hash::{BlockHash, ContextHash};
 
 use crate::persistent::{
     BincodeEncoded, CommitLogSchema, CommitLogWithSchema, KeyValueSchema, KeyValueStoreWithSchema,
-    Location, PersistentStorage,
+    Location, PersistentStorage, StorageType,
 };
 use crate::{BlockHeaderWithHash, Direction, IteratorMode, StorageError};
 
@@ -98,9 +98,11 @@ pub trait BlockStorageReader: Sync + Send {
 impl BlockStorage {
     pub fn new(persistent_storage: &PersistentStorage) -> Self {
         Self {
-            primary_index: BlockPrimaryIndex::new(persistent_storage.kv()),
-            by_level_index: BlockByLevelIndex::new(persistent_storage.kv()),
-            by_context_hash_index: BlockByContextHashIndex::new(persistent_storage.kv()),
+            primary_index: BlockPrimaryIndex::new(persistent_storage.kv(StorageType::Database)),
+            by_level_index: BlockByLevelIndex::new(persistent_storage.kv(StorageType::Database)),
+            by_context_hash_index: BlockByContextHashIndex::new(
+                persistent_storage.kv(StorageType::Database),
+            ),
             clog: persistent_storage.clog(),
         }
     }
