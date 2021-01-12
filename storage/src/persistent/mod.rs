@@ -18,6 +18,7 @@ use crate::persistent::sequence::Sequences;
 pub mod codec;
 pub mod commit_log;
 pub mod database;
+pub mod in_memory_backend;
 pub mod schema;
 pub mod sequence;
 
@@ -128,6 +129,7 @@ pub struct PersistentStorage {
 impl PersistentStorage {
     pub fn new(kv: Arc<DB>, clog: Arc<CommitLogs>) -> Self {
         let seq = Arc::new(Sequences::new(kv.clone(), 1000));
+        // let ram_storage : Arc<in_memory_backend::InMemoryStorage<MerkleStorage>> = Arc::new(in_memory_backend::InMemoryStorage::new("/mtp/tmp"));
         Self {
             clog,
             kv: kv.clone(),
