@@ -23,7 +23,10 @@ async fn main() {
     // create an slog logger
     let log = create_logger(env.log_level);
 
-    info!(log, "Tezedge stack watchdog started. Image: {}", &env.image_tag);
+    info!(
+        log,
+        "Tezedge stack watchdog started. Image: {}", &env.image_tag
+    );
 
     let slack_server = slack::SlackServer::new(
         env.slack_url,
