@@ -20,15 +20,15 @@ pub async fn launch_stack() {
     start_with_compose(DEBUGGER_CONTAINER_NAME, "debugger");
 
     // debugger healthcheck
-    while !reqwest::get("http://localhost:17732/v2/log").await.is_ok() {
+    while reqwest::get("http://localhost:17732/v2/log").await.is_err() {
         delay_for(Duration::from_millis(1000)).await;
     }
     start_with_compose(NODE_CONTAINER_NAME, "rust-node");
 
     // node healthcheck
-    while !reqwest::get("http://localhost:18732/chains/main/head/header")
+    while reqwest::get("http://localhost:18732/chains/main/head/header")
         .await
-        .is_ok()
+        .is_err()
     {
         delay_for(Duration::from_millis(1000)).await;
     }

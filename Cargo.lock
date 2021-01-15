@@ -4642,7 +4642,7 @@ checksum = "1d649a3145108d7d3fbcde896a468d1bd636791823c9921135218ad89be08307"
 
 [[package]]
 name = "watchdog"
-version = "0.9.0"
+version = "0.10.0"
 dependencies = [
  "clap",
  "failure",

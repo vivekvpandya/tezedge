@@ -70,7 +70,8 @@ impl DeployMonitor {
                     let ImageDetails { repo_digests, .. } = image;
 
                     let remote_image_hash = self.get_latest_image_hash().await?;
-                    let local_image_hash = repo_digests.unwrap_or(vec!["".to_string()])[0].clone();
+                    let local_image_hash =
+                        repo_digests.unwrap_or_else(|| vec!["".to_string()])[0].clone();
 
                     if local_image_hash == remote_image_hash {
                         // Do nothing, No update occured
