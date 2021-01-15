@@ -16,7 +16,7 @@ services:
     entrypoint: ./tezedge-debugger
 
   rust-node:
-    image: simplestakingcom/tezedge:v0.9.1
+    image: simplestakingcom/tezedge:${TEZEDGE_IMAGE_TAG}
     network_mode: "service:rust-network"
     command: "/light-node --config-file /tezedge.config --network delphi"
     depends_on:
