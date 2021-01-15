@@ -8,7 +8,6 @@ use slog::{error, info, Logger};
 
 #[derive(Clone)]
 pub struct SlackServer {
-    name: String,
     monitor_channel_url: String,
     auth_token: String,
     channel: String,
@@ -17,14 +16,12 @@ pub struct SlackServer {
 
 impl SlackServer {
     pub fn new(
-        name: String,
         monitor_channel_url: String,
         auth_token: String,
         channel: String,
         log: Logger,
     ) -> Self {
         Self {
-            name,
             monitor_channel_url,
             auth_token,
             channel,

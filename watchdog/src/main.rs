@@ -18,16 +18,14 @@ mod slack;
 #[tokio::main]
 async fn main() {
     // parse and validate program arguments
-    let env = configuration::DeployMonitoringEnvironment::from_args();
+    let env = configuration::WatchdogEnvironment::from_args();
 
     // create an slog logger
     let log = create_logger(env.log_level);
 
-    info!(log, "Tezedge stack monitoring started");
+    info!(log, "Tezedge stack watchdog started. Image: {}", &env.image_tag);
 
-    // deploy::start_monitored_stack().await;
     let slack_server = slack::SlackServer::new(
-        "test".to_string(),
         env.slack_url,
         env.slack_token,
         env.slack_channel_name,

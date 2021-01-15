@@ -2,17 +2,16 @@
 // SPDX-License-Identifier: MIT
 #![forbid(unsafe_code)]
 
+use std::env;
+
 use clap::{App, Arg};
 
-pub struct DeployMonitoringEnvironment {
+pub struct WatchdogEnvironment {
     // logging level
     pub log_level: slog::Level,
 
     // image tag to watch
     pub image_tag: String,
-
-    // restart the node after failure
-    pub restart_on_failiure: bool,
 
     // slack bot token
     pub slack_token: String,
@@ -31,7 +30,7 @@ pub struct DeployMonitoringEnvironment {
 }
 
 fn deploy_monitoring_app() -> App<'static, 'static> {
-    let app = App::new("Tezedge monitoring app")
+    let app = App::new("Tezedge watchdog app")
         .version("0.10.0")
         .author("SimpleStaking and the project contributors")
         .setting(clap::AppSettings::AllArgsOverrideSelf)
@@ -49,11 +48,6 @@ fn deploy_monitoring_app() -> App<'static, 'static> {
                 .takes_value(true)
                 .value_name("IMAGE-TAG")
                 .help("Image tag on docker hub to watch"),
-        )
-        .arg(
-            Arg::with_name("restart-on-failiure")
-                .long("restart-on-failiure")
-                .help("The node restarts on failure"),
         )
         .arg(
             Arg::with_name("slack-token")
@@ -101,25 +95,30 @@ pub fn validate_required_arg(args: &clap::ArgMatches, arg_name: &str) {
 }
 
 fn validate_required_args(args: &clap::ArgMatches) {
+    validate_required_arg(args, "monitor-interval");
+    validate_required_arg(args, "info-interval");
     validate_required_arg(args, "slack-token");
-    validate_required_arg(args, "image-tag");
+    validate_required_arg(args, "slack-channel-name");
+    validate_required_arg(args, "slack-url");
 }
 
-impl DeployMonitoringEnvironment {
+impl WatchdogEnvironment {
     pub fn from_args() -> Self {
         let app = deploy_monitoring_app();
         let args = app.clone().get_matches();
 
         validate_required_args(&args);
 
-        DeployMonitoringEnvironment {
+        // get image tag form env var
+        let image_tag = env::var("TEZEDGE_IMAGE_TAG").unwrap_or("latest".to_string());
+
+        WatchdogEnvironment {
             log_level: args
                 .value_of("log-level")
                 .unwrap_or("info")
                 .parse::<slog::Level>()
                 .expect("Was expecting one value from slog::Level"),
-            image_tag: args.value_of("image-tag").unwrap_or("").to_string(),
-            restart_on_failiure: args.is_present("restart-on-failiure"),
+            image_tag,
             slack_token: args.value_of("slack-token").unwrap_or("").to_string(),
             slack_url: args.value_of("slack-url").unwrap_or("").to_string(),
             slack_channel_name: args
