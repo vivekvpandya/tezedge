@@ -29,6 +29,7 @@ use tezos_messages::p2p::{
     encoding::operation::Operation,
     encoding::peer::PeerMessageResponse,
     encoding::prelude::ConnectionMessage,
+	nom_parser::parse::operation,
 };
 
 pub struct BinaryStream(Vec<u8>);
@@ -87,6 +88,9 @@ pub fn deserialize_benchmark(c: &mut Criterion) {
                 .unwrap()
         })
     });
+	c.bench_function("from_nom_parser", |b| {
+		b.iter(|| operation(&message_bytes))
+	});
     let value = BinaryReader::new()
         .read(black_box(message_bytes.clone()), &Operation::encoding())
         .unwrap();
