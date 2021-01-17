@@ -45,11 +45,11 @@ impl From<OperationMessage> for Operation {
 // -----------------------------------------------------------------------------------------------
 #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 pub struct Operation {
-    branch: BlockHash,
-    data: Vec<u8>,
+    pub branch: BlockHash,
+    pub data: Vec<u8>,
 
     #[serde(skip_serializing)]
-    body: BinaryDataCache,
+    pub body: BinaryDataCache,
 }
 
 impl Operation {

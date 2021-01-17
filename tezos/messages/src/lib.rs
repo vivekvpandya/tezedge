@@ -3,6 +3,8 @@
 #![forbid(unsafe_code)]
 
 //! This crate provides definitions of tezos messages.
+#[macro_use]
+extern crate nom;
 
 use chrono::prelude::*;
 use getset::Getters;

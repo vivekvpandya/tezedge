@@ -6,3 +6,4 @@
 #[macro_use]
 pub mod encoding;
 pub mod binary_message;
+pub mod nom_parser;
